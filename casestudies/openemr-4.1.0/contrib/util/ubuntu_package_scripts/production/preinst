@@ -1,0 +1,300 @@
+#!/bin/bash -e
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+# Copyright 2011
+# authors: Amalu Obinna <amaluobinna@aol.com>
+#          Brady Miller <brady@sparmy.com>
+#
+# Debian package pre-installation script steps:
+#  1) Create log file
+#  2) New install or Upgrade
+#    -Install
+#      a) If OpenEMR web directory already exist, then attempt an upgrade.
+#    -Upgrade
+#      a) Ensure OpenEMR web directory does exist
+#      b) Collect package version and ensure appropriate upgrade
+#      c) Collect webpath and sql settings from current version
+#      d) Verify the mysql user/database exist
+#      e) Backup the current version web folder and mysql database
+#      f) Clear the cache directories in current version    
+#  3) Create config file
+#
+#  Output log file:
+#   /var/log/openemr/install
+#
+#
+# summary of how this script can be called:
+#        * <new-preinst> `install'
+#        * <new-preinst> `install' <old-version>
+#        * <new-preinst> `upgrade' <old-version>
+#        * <old-preinst> `abort-upgrade' <new-version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+#constants and paths
+LOGDIR=/var/log/openemr
+LOG=$LOGDIR/install
+CONFIGDIR=/etc/openemr
+CONFIG=$CONFIGDIR/openemr.conf
+TMPDIR=/tmp/openemr-tmp
+WEB=/var/www
+OPENEMR=$WEB/openemr
+SITEDIR=$OPENEMR/sites/default
+#hardcoded mysql user and database for install (not pertinent for upgrading)
+# upgrading can use whatever is found in openemr/library/sqlconf.php
+INSTALL_USER=openemr
+INSTALL_DATABASE=openemr
+
+#Standardized echo function to send to only log file
+#  requires one parameter (string)
+log_only () {
+   echo "`date`: $1" >> $LOG
+}
+
+#Standardized exit function to be used when unable to install the openemr package
+#  requires one parameter (string with reason for exiting)
+unable_exit () {
+   echo "`date`: $1" >> $LOG
+   echo "`date`: EXITING.........." >> $LOG
+   exit 1
+}
+
+#function to prompt for input
+# 1st param is name, 2nd param is priority, 3rd param is where result gets sent back in
+# return the input
+prompt_input () {
+   db_set "$1" ""
+   db_fset "$1" seen false
+   db_input "$2" "$1" || true
+   db_go || true
+   db_get "$1"
+   local input_value="$RET"
+   db_set "$1" ""
+   db_fset "$1" seen false
+   local __result=$3
+   eval $__result="'$input_value'"
+}
+
+#function to check mysql for selected databases
+# 1st param is password, 2nd param database, 3rd param is host (optional), 4th param is user (optional)
+check_mysql () {
+   if [ -n "$3" ]; then
+      HOST=$3
+   else
+      HOST=localhost
+   fi
+   if [ -n "$4" ]; then
+      USE=$4
+   else
+      USE=root
+   fi
+
+   if [ "`mysql -u "$USE" -h "$HOST" --password="$1" -e 'show databases' 2>/dev/null | awk '{ print $1}' | grep "^$2$"`" == "$2" ]; then
+      return 0
+   else
+      return 1
+   fi
+}
+
+#function to collect variables from config files
+# 1st param is variable name, 2nd param is filename 
+collect_var () {
+   echo `grep -i "^[[:space:]]*$1[[:space:]=]" $2 | cut -d \= -f 2 | cut -d \; -f 1 | sed "s/[ 	'\"]//gi"`
+}
+
+#function to hold the upgrade code (allow more flexible upgrading)
+# 1st param is the previous version,
+# 2nd param is whether raw or package upgrade
+upgrade_function () {
+
+      #Check for /var/www/openemr. If does not exist, then exit.
+      if ! [ -d "$OPENEMR" ]; then
+         prompt_input openemr/upgrade_not_installed critical ret_result
+         unable_exit "OpenEMR is not installed ($OPENEMR), so can not upgrade the OpenEMR Package."
+      fi
+
+      #collect previous version
+      OLD_VERSION=$1
+
+      #collect type of upgrade (either package or raw)
+      UPGRADETYPE=$2
+
+      #ensure version is appropriate for upgrade (if not, then exit!!)
+      #
+      # ONLY acceptable for raw is 3.0.0 or 3.0.0.1 or 3.1.0 (need to convert these)
+      #
+      if [ "$UPGRADETYPE" == "raw" ]; then
+         if [ "$OLD_VERSION" == "3.0.0" ]; then
+            OLD_VERSION="3.0.1-1"
+         elif [ "$OLD_VERSION" == "3.0.0.1" ]; then
+            OLD_VERSION="3.0.1-1"
+         elif [ "$OLD_VERSION" == "3.0.1" ]; then
+            OLD_VERSION="3.0.1-1"
+         elif [ "$OLD_VERSION" == "3.1.0" ]; then
+            OLD_VERSION="3.1.0-1" 
+         elif [ "$OLD_VERSION" == "3.2.0" ]; then
+            OLD_VERSION="3.2.0-1"
+         elif [ "$OLD_VERSION" == "3.2.0.1" ]; then
+            OLD_VERSION="3.2.0-1"
+         elif [ "$OLD_VERSION" == "4.0.0" ]; then
+            OLD_VERSION="4.0.0-1"
+         else
+            prompt_input openemr/upgrade_not_supported critical ret_result
+            unable_exit "Unable to upgrade from $OLD_VERSION version package with $UPGRADETYPE method, so can not upgrade the OpenEMR Package."
+         fi
+      fi
+      #
+      # ONLY acceptable package and converted raw is 3.0.1-1 or 3.1.0-1 or 3.2.0-1 or 4.0.0-1
+      #
+      if [ "$OLD_VERSION" != "3.0.1-1" ] && [ "$OLD_VERSION" != "3.1.0-1" ] && [ "$OLD_VERSION" != "3.2.0-1" ]&& [ "$OLD_VERSION" != "4.0.0-1" ]; then
+         prompt_input openemr/upgrade_not_supported critical ret_result
+         unable_exit "Unable to upgrade from $OLD_VERSION version package with $UPGRADETYPE method, so can not upgrade the OpenEMR Package."
+      fi
+
+      #collect openemr mysql data
+      #(will need to look in sites directory if 4.0 or later)
+      if [ "$OLD_VERSION" == "3.0.1-1" ] || [ "$OLD_VERSION" == "3.1.0-1" ] || [ "$OLD_VERSION" == "3.2.0-1" ]; then
+         SQLLOCATION=$(collect_var \$host $OPENEMR/library/sqlconf.php)
+         SQLUSER=$(collect_var \$login $OPENEMR/library/sqlconf.php)
+         SQLPASSWORD=$(collect_var \$pass $OPENEMR/library/sqlconf.php)
+         SQLDATABASE=$(collect_var \$dbase $OPENEMR/library/sqlconf.php)
+         SQLUTFFLAG=$(collect_var \$disable_utf8_flag $OPENEMR/library/sqlconf.php)
+      else
+         SQLLOCATION=$(collect_var \$host $SITEDIR/sqlconf.php)
+         SQLUSER=$(collect_var \$login $SITEDIR/sqlconf.php)
+         SQLPASSWORD=$(collect_var \$pass $SITEDIR/sqlconf.php)
+         SQLDATABASE=$(collect_var \$dbase $SITEDIR/sqlconf.php)
+         SQLUTFFLAG=$(collect_var \$disable_utf8_flag $SITEDIR/sqlconf.php)
+      fi
+      #if SQLUTFFLAG variable is empty, then make it false       
+      if [ "$SQLUTFFLAG" == "" ]; then
+         SQLUTFFLAG="false"
+      fi
+
+      #ensure the mysql database and user exist
+      if check_mysql "$SQLPASSWORD" "$SQLDATABASE" "$SQLLOCATION" "$SQLUSER"; then
+         log_only "For upgrade, confirmed that the mysql database and mysql user exist"
+      else
+         prompt_input openemr/upgrade_not_database critical ret_result
+         unable_exit "MySQL '$SQLDATABASE' database does not exist, unable to upgrade."
+      fi
+
+      #create the tmp directories
+      mkdir -p $TMPDIR/openemr_web_$OLD_VERSION
+      mkdir -p $TMPDIR/openemr_mysql_$OLD_VERSION
+
+      #backup web directory to tmp
+      cp -fr $OPENEMR/* $TMPDIR/openemr_web_$OLD_VERSION/
+
+      #backup mysql database to tmp
+      mysqldump -u "$SQLUSER" -h "$SQLLOCATION" --password="$SQLPASSWORD" "$SQLDATABASE" > $TMPDIR/openemr_mysql_$OLD_VERSION/openemr_mysql_$OLD_VERSION.sql
+
+      #clear the temporary openemr cache directories (no need to keep these during upgrade)
+      rm -fr $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled/*
+      rm -fr $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache/*
+      rm -fr $OPENEMR/gacl/admin/templates_c/*
+
+      log_only "Upgrading OpenEMR from $OLD_VERSION..."
+
+      #Create the config file string, which will pass info to postinst script
+      #to continue upgrade process.
+      SETTING="#Optional settings\n\
+#(currently empty, plan to use in subsequent versions of OpenEMR)\n\
+\n\
+#Installation settings\n\
+# (DO NOT EDIT below!!!)\n\
+process=pending\n\
+plan=upgrade\n\
+previous_version=$OLD_VERSION\n\
+sqllocation=$SQLLOCATION\n\
+sqluser=$SQLUSER\n\
+sqlpassword=$SQLPASSWORD\n\
+sqldatabase=$SQLDATABASE\n\
+sqlutfflag=$SQLUTFFLAG"
+      mkdir -p $CONFIGDIR
+      echo -e $SETTING > $CONFIG
+}
+
+
+case "$1" in
+   install)
+
+      #create the log file directory
+      mkdir -p $LOGDIR
+
+      #Check for /var/www/openemr, if exist then see if upgrade is possible
+      if [ -d "$OPENEMR" ]; then
+
+         #collect current version
+         #(for post-4.0 release will need to look in version.php file for version)
+         #(for post-4.0 release will need to use v_tag rather than tag)
+         #(if version.php exists then look there, otherwise get from globals)
+         if [ -e "$OPENEMR/version.php" ]; then
+            v1=$(collect_var \$v_major $OPENEMR/version.php)
+            v2=$(collect_var \$v_minor $OPENEMR/version.php)
+            v3=$(collect_var \$v_patch $OPENEMR/version.php)
+            v4=$(collect_var \$v_tag $OPENEMR//version.php)
+         else
+            v1=$(collect_var \$v_major $OPENEMR/interface/globals.php)
+            v2=$(collect_var \$v_minor $OPENEMR/interface/globals.php)
+            v3=$(collect_var \$v_patch $OPENEMR/interface/globals.php)
+            v4=$(collect_var \$tag $OPENEMR/interface/globals.php)
+         fi
+         RAWVERSION="$v1.$v2.$v3$v4"
+
+         #attempt upgrade, if user desires
+         prompt_input openemr/upgrade_confirm critical ret_result
+         if [ "$ret_result" == "no" ]; then
+            prompt_input openemr/upgrade_no critical ret_result
+            unable_exit "You have chosen to not install the OpenEMR package."
+         fi
+         upgrade_function $RAWVERSION "raw"
+
+         exit 0
+      fi
+
+      #Begin the config file string
+      # this is so the postinst script can follow installation
+      #  variables:
+      #   process states whether installation/upgrade is pending or complete
+      #   plan states whether install or upgrade
+      #   pass temporarily holds the mysql
+      SETTING="#Optional settings\n\
+#(currently empty, plan to use in subsequent versions of OpenEMR)\n\
+\n\
+#Installation settings\n\
+# (DO NOT EDIT below!!!)\n\
+process=pending\n\
+plan=install"
+
+      #ready to install package, so create the config directory and files
+      mkdir -p $CONFIGDIR
+      echo -e $SETTING > $CONFIG
+
+      exit 0
+   ;;
+
+   upgrade)
+
+      upgrade_function $2 "package"
+
+      exit 0
+   ;;
+
+   abort-upgrade)
+      echo "preinst asked to do abort-upgrade"
+      exit 0
+   ;;
+
+   *)
+      echo "preinst called with unknown argument \`$1'" >&2
+      exit 1
+   ;;
+esac

@@ -1,0 +1,3 @@
+openemr/Documentation
+openemr/contrib/forms
+openemr/.git

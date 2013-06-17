@@ -1,0 +1,372 @@
+From e6dd17a6b7bb10743abb4a0f037ee2d968c7d5eb Mon Sep 17 00:00:00 2001
+From: bradymiller <bradymiller@users.sourceforge.net>
+Date: Wed, 14 Sep 2011 18:36:39 -0700
+Subject: [PATCH] setting version, preparing ubuntu packages and prepping links for release
+
+---
+ Documentation/README.phpgacl                       |    4 ++--
+ contrib/forms/xmlformgen/README                    |    2 +-
+ contrib/util/language_translations/README          |   10 ++--------
+ .../development/README.Debian                      |    6 +++---
+ .../ubuntu_package_scripts/development/control     |    7 +++----
+ .../ubuntu_package_scripts/development/copyright   |    2 +-
+ .../development/git-openemr.8                      |    4 +---
+ .../production/README.Debian                       |   10 +++++-----
+ .../production/changelog.Debian                    |    2 +-
+ .../util/ubuntu_package_scripts/production/control |    7 +++----
+ .../ubuntu_package_scripts/production/copyright    |    4 ++--
+ .../ubuntu_package_scripts/production/openemr.8    |    4 +---
+ copyright_notice.html                              |    2 +-
+ interface/billing/billing_report.php               |    2 +-
+ interface/forms/CAMOS/README.txt                   |    2 +-
+ interface/language/lang.info.html                  |    2 +-
+ interface/main/main_navigation.php                 |    2 +-
+ interface/main/main_title.php                      |    2 +-
+ library/globals.inc.php                            |    2 +-
+ setup.php                                          |    3 +--
+ version.php                                        |    2 +-
+ 21 files changed, 34 insertions(+), 47 deletions(-)
+
+diff --git a/Documentation/README.phpgacl b/Documentation/README.phpgacl
+index 4632a14..fabae24 100644
+--- a/Documentation/README.phpgacl
++++ b/Documentation/README.phpgacl
+@@ -36,7 +36,7 @@ has not been automatically installed.  Setting it up takes some careful
+ study, planning and a bit of time.  If you don't have the time then you
+ should hire an experienced person to set things up for you.  Helpful
+ installation and configuration instructions can be found on the wiki at the
+-www.oemr.org site.
++www.open-emr.org site.
+ 
+ Alternatively, it's possible to set up your own access rules without
+ using phpGACL by customizing the code in library/acl.inc.  See that
+@@ -45,7 +45,7 @@ module for more information.
+ phpGACL is available from http://phpgacl.sourceforge.net/.  Read
+ its documentation and install it according to its instructions.
+ Helpful installation and configuration instructions can also be
+-found on the wiki at the www.oemr.org site.
++found on the wiki at the www.open-emr.org site.
+ 
+ The admin GUI needs to be protected, so add something like this
+ to your Apache configuration:
+diff --git a/contrib/forms/xmlformgen/README b/contrib/forms/xmlformgen/README
+index 5f7c2ad..883b2b0 100644
+--- a/contrib/forms/xmlformgen/README
++++ b/contrib/forms/xmlformgen/README
+@@ -1,4 +1,4 @@
+ xml form generator
+ 
+ See following wiki link for details/instructions:
+-http://www.openmedsoftware.org/wiki/OpenEMR_Xml_Form_Generator
++http://open-emr.org/wiki/index.php/OpenEMR_Xml_Form_Generator
+diff --git a/contrib/util/language_translations/README b/contrib/util/language_translations/README
+index a91db6c..15814f4 100644
+--- a/contrib/util/language_translations/README
++++ b/contrib/util/language_translations/README
+@@ -63,14 +63,8 @@ google docs).
+ 
+ The currentLanguage_utf8.sql and currentLanguage_latin1.sql holds current
+ sql tables dumpfile.  Latest releases of this are available at:
+-http://www.openmedsoftware.org/wiki/Install_Translations
++http://open-emr.org/wiki/index.php/Install_Translations
+ 
+ To insert these translation tables into your OpenEMR refer to
+ instructions at this page in the wiki:
+-http://www.oemr.org/modules/wiwimod/index.php?page=InstallTranslations
+-
+-To create a new set of translation tables from the most current google docs
+-spreadsheet, follow the instructions posted on the following
+-wiki section:
+-http://www.openmedsoftware.org/wiki/Install_Translations#How_The_Translation_Releases_Are_Built
+-
++http://open-emr.org/wiki/index.php/Install_Translations
+diff --git a/contrib/util/ubuntu_package_scripts/development/README.Debian b/contrib/util/ubuntu_package_scripts/development/README.Debian
+index b8f8f37..3d82486 100644
+--- a/contrib/util/ubuntu_package_scripts/development/README.Debian
++++ b/contrib/util/ubuntu_package_scripts/development/README.Debian
+@@ -22,17 +22,17 @@ Firefox is recommended.
+ Documentation:
+ --------------
+ The OpenEMR project home page and wiki (documentation) can be found at
+-http://www.oemr.org .
++http://www.open-emr.org .
+ 
+ 
+ Support Forums:
+ ---------------
+-The OpenEMR forums can be found at http://sourceforge.net/projects/openemr
++The OpenEMR forums can be found at http://www.open-emr.org
+ 
+ 
+ Reporting Bugs:
+ ---------------
+-Report to the OpenEMR forums at http://sourceforge.net/projects/openemr
++Report to the OpenEMR forums at http://www.open-emr.org
+ 
+ 
+ Send us an email to help support OpenEMR:
+diff --git a/contrib/util/ubuntu_package_scripts/development/control b/contrib/util/ubuntu_package_scripts/development/control
+index 3d75739..a0d5a0b 100644
+--- a/contrib/util/ubuntu_package_scripts/development/control
++++ b/contrib/util/ubuntu_package_scripts/development/control
+@@ -5,7 +5,7 @@ Installed-Size: 46000
+ Priority: optional
+ Section: web
+ Architecture: all
+-Homepage: http://www.oemr.org/
++Homepage: http://www.open-emr.org/
+ Pre-Depends: debconf
+ Depends: mysql-server, apache2-mpm-prefork, makepasswd, libapache2-mod-php5, libdate-calc-perl, libdbd-mysql-perl, libdbi-perl, libhtml-parser-perl, libtiff-tools, libwww-mechanize-perl, libxml-parser-perl, php5, php5-mysql, php5-cli, php5-gd, php5-xsl, php5-curl, php5-mcrypt, php-soap, imagemagick, git-core
+ Description: Comprehensive Medical Practice Management Application
+@@ -20,6 +20,5 @@ Description: Comprehensive Medical Practice Management Application
+  To use OpenEMR after installation, go to http://localhost/git-openemr ,
+  the user is 'admin' and password is 'pass'.
+  .
+- The OpenEMR project home page and wiki (documentation)
+- can be found at http://www.oemr.org and the OpenEMR forums can be
+- found at http://sourceforge.net/projects/openemr
++ The OpenEMR project home page, wiki (documentation), and forums
++ can be found at http://www.open-emr.org .
+diff --git a/contrib/util/ubuntu_package_scripts/development/copyright b/contrib/util/ubuntu_package_scripts/development/copyright
+index 792ca73..ed4df3b 100644
+--- a/contrib/util/ubuntu_package_scripts/development/copyright
++++ b/contrib/util/ubuntu_package_scripts/development/copyright
+@@ -2,7 +2,7 @@ This package was debianized by Brady Miller <brady@sparmy.com> on
+ Tue, 26 Jul 2011 17:40:00 -0700.
+ 
+ Upstream Author: 
+-    http://www.oemr.org
++    http://www.open-emr.org
+ 
+ Copyright: 
+     Copyright (C) 2011 http://www.oemr.org
+diff --git a/contrib/util/ubuntu_package_scripts/development/git-openemr.8 b/contrib/util/ubuntu_package_scripts/development/git-openemr.8
+index 5c8e2cd..2f4c47d 100644
+--- a/contrib/util/ubuntu_package_scripts/development/git-openemr.8
++++ b/contrib/util/ubuntu_package_scripts/development/git-openemr.8
+@@ -10,9 +10,7 @@ To use git-OpenEMR, go to http://localhost/git-openemr :  user is 'admin' and pa
+ 
+ To ensure a consistent look and feel through out the application using Firefox is recommended.
+ 
+-The OpenEMR project home page and wiki (documentation) can be found at http://www.oemr.org
+-
+-The OpenEMR forums can be found at http://sourceforge.net/projects/openemr
++The OpenEMR project home page, wiki (documentation) and forums can be found at http://www.open-emr.org
+ 
+ We pursue grants to help fund the future development of OpenEMR.  To apply for these grants, we need to estimate how many times this program is installed and how many practices are evaluating or using this software.  It would be awesome if you would email us at drbowen@openmedsoftware.org if you have installed this software. The more details about your plans with this software, the better, but even just sending us an email stating you just installed it is very helpful.
+ 
+diff --git a/contrib/util/ubuntu_package_scripts/production/README.Debian b/contrib/util/ubuntu_package_scripts/production/README.Debian
+index b9b4d5f..3010b51 100644
+--- a/contrib/util/ubuntu_package_scripts/production/README.Debian
++++ b/contrib/util/ubuntu_package_scripts/production/README.Debian
+@@ -20,17 +20,17 @@ Firefox is recommended.
+ Documentation:
+ --------------
+ The OpenEMR project home page and wiki (documentation) can be found at
+-http://www.oemr.org .
++http://www.open-emr.org .
+ 
+ 
+ Support Forums:
+ ---------------
+-The OpenEMR forums can be found at http://sourceforge.net/projects/openemr
++The OpenEMR forums can be found at http://www.open-emr.org
+ 
+ 
+ Reporting Bugs:
+ ---------------
+-Report to the OpenEMR forums at http://sourceforge.net/projects/openemr
++Report to the OpenEMR forums at http://www.open-emr.org
+ 
+ 
+ Send us an email to help support OpenEMR:
+@@ -46,5 +46,5 @@ just installed it is very helpful.
+ 
+ Authors of debianized OpenEMR:
+ ------------------------------
+--- Brady Miller <brady@sparmy.com> Fri, 25 Mar 2011 22:46:08 -0700
+--- Amalu Obinna <amaluobinna@aol.com> Fri, 25 Mar 2011 22:46:08 -0700
++-- Brady Miller <brady@sparmy.com> Wed, 21 Sep 2011 01:23:23 -0700
++-- Amalu Obinna <amaluobinna@aol.com> Wed, 21 Sep 2011 01:23:23 -0700
+diff --git a/contrib/util/ubuntu_package_scripts/production/changelog.Debian b/contrib/util/ubuntu_package_scripts/production/changelog.Debian
+index 9dad879..ddde13f 100644
+--- a/contrib/util/ubuntu_package_scripts/production/changelog.Debian
++++ b/contrib/util/ubuntu_package_scripts/production/changelog.Debian
+@@ -3,7 +3,7 @@ openemr (4.1.0-1) stable; urgency=low
+   * New upstream version
+   * Standardized Package Prompting
+ 
+- -- Brady Miller <brady@sparmy.com>  Wed, 27 Jul 2011 18:44:33 -0700
++ -- Brady Miller <brady@sparmy.com>  Wed, 21 Sep 2011 01:24:46 -0700
+ 
+ openemr (4.0.0-1) stable; urgency=low
+ 
+diff --git a/contrib/util/ubuntu_package_scripts/production/control b/contrib/util/ubuntu_package_scripts/production/control
+index b533d60..0821fb5 100644
+--- a/contrib/util/ubuntu_package_scripts/production/control
++++ b/contrib/util/ubuntu_package_scripts/production/control
+@@ -6,7 +6,7 @@ Priority: optional
+ Section: web
+ Architecture: all
+ Source: openemr
+-Homepage: http://www.oemr.org/
++Homepage: http://www.open-emr.org/
+ Pre-Depends: debconf
+ Depends: mysql-server, apache2-mpm-prefork, makepasswd, libapache2-mod-php5, libdate-calc-perl, libdbd-mysql-perl, libdbi-perl, libhtml-parser-perl, libtiff-tools, libwww-mechanize-perl, libxml-parser-perl, php5, php5-mysql, php5-cli, php5-gd, php5-xsl, php5-curl, php5-mcrypt, php-soap, imagemagick 
+ Description: Comprehensive Medical Practice Management Application
+@@ -17,6 +17,5 @@ Description: Comprehensive Medical Practice Management Application
+  the user is 'admin' and password is 'pass' (recommend changing password
+  after login).
+  .
+- The OpenEMR project home page and wiki (documentation)
+- can be found at http://www.oemr.org and the OpenEMR forums can be
+- found at http://sourceforge.net/projects/openemr
++ The OpenEMR project home page and wiki (documentation) and forums
++ can be found at http://www.open-emr.org .
+diff --git a/contrib/util/ubuntu_package_scripts/production/copyright b/contrib/util/ubuntu_package_scripts/production/copyright
+index 66594a8..ac2bf81 100644
+--- a/contrib/util/ubuntu_package_scripts/production/copyright
++++ b/contrib/util/ubuntu_package_scripts/production/copyright
+@@ -1,10 +1,10 @@
+ This package was debianized by Brady Miller <brady@sparmy.com> on
+-Fri, 25 Mar 2011 22:46:08 -0700.
++Wed, 21 Sep 2011 01:24:46 -0700.
+ 
+ It was downloaded from sourceforge.
+ 
+ Upstream Author: 
+-    http://www.oemr.org
++    http://www.open-emr.org
+ 
+ Copyright: 
+     Copyright (C) 2011 http://www.oemr.org
+diff --git a/contrib/util/ubuntu_package_scripts/production/openemr.8 b/contrib/util/ubuntu_package_scripts/production/openemr.8
+index 08db1ac..a0767ca 100644
+--- a/contrib/util/ubuntu_package_scripts/production/openemr.8
++++ b/contrib/util/ubuntu_package_scripts/production/openemr.8
+@@ -7,9 +7,7 @@ To use OpenEMR, go to http://localhost/openemr :  user is 'admin' and password i
+ 
+ To ensure a consistent look and feel through out the application using Firefox is recommended.
+ 
+-The OpenEMR project home page and wiki (documentation) can be found at http://www.oemr.org
+-
+-The OpenEMR forums can be found at http://sourceforge.net/projects/openemr
++The OpenEMR project home page, wiki (documentation) and forums can be found at http://www.open-emr.org
+ 
+ We pursue grants to help fund the future development of OpenEMR.  To apply for these grants, we need to estimate how many times this program is installed and how many practices are evaluating or using this software.  It would be awesome if you would email us at drbowen@openmedsoftware.org if you have installed this software. The more details about your plans with this software, the better, but even just sending us an email stating you just installed it is very helpful.
+ 
+diff --git a/copyright_notice.html b/copyright_notice.html
+index 1043cb9..d12a5c3 100644
+--- a/copyright_notice.html
++++ b/copyright_notice.html
+@@ -9,7 +9,7 @@ All of this code has been released under the terms of the <a href="license.txt">
+ OpenEMR Project Website: <a href="http://www.open-emr.com/">www.open-emr.com</a><br><br>
+ 
+ <b>List of Developers and Contributors:</b><br><br>
+-<!-- To add your information, please edit http://www.oemr.org/wiki/OpenEMR_Copyright_Notice This file is built from the contents of that wiki page. -->
++<!-- To add your information, please edit http://open-emr.org/wiki/index.php/OpenEMR_Copyright_Notice . This file is built from the contents of that wiki page. -->
+ 
+ Andres Paglayan<br>
+ andres@paglayan.com<br><br>
+diff --git a/interface/billing/billing_report.php b/interface/billing/billing_report.php
+index 73b4c5a..c7f657f 100644
+--- a/interface/billing/billing_report.php
++++ b/interface/billing/billing_report.php
+@@ -8,7 +8,7 @@
+ // WHEN CONVERT THIS TO NEW SECURITY MODEL, NEED TO REMOVE FOLLOWING
+ //   AT APPROXIMATELY LINE 377:
+ //     $_REQUEST = stripslashes_deep($_REQUEST);
+-// http://www.openmedsoftware.org/wiki/Active_Projects#PLAN
++// http://open-emr.org/wiki/index.php/Active_Projects#PLAN
+ 
+ 
+ require_once("../globals.php");
+diff --git a/interface/forms/CAMOS/README.txt b/interface/forms/CAMOS/README.txt
+index 4df31f9..9a0fca2 100644
+--- a/interface/forms/CAMOS/README.txt
++++ b/interface/forms/CAMOS/README.txt
+@@ -1 +1 @@
+-For instructions, please refer to the help.html file in this directory and the instruction manual on OpenEMR's wiki at: http://www.openmedsoftware.org/wiki/CAMOS_module .
++For instructions, please refer to the help.html file in this directory and the instruction manual on OpenEMR's wiki at: http://open-emr.org/wiki/index.php/CAMOS_module .
+diff --git a/interface/language/lang.info.html b/interface/language/lang.info.html
+index 3d7a387..eed1f06 100644
+--- a/interface/language/lang.info.html
++++ b/interface/language/lang.info.html
+@@ -82,7 +82,7 @@ Another example of use includes:
+ echo ("this and " . xl('translate this') . " that too");
+ 
+ Further details and rules on use can be found on the wiki here:
+-http://www.openmedsoftware.org/wiki/Development_Policies#Internationalization
++http://open-emr.org/wiki/index.php/Development_Policies#Internationalization
+ 
+ There are also wrappers to the xl() function that are used infrequently in specific situations. Please
+ refer to openemr/library/translation.inc.php for more details.
+diff --git a/interface/main/main_navigation.php b/interface/main/main_navigation.php
+index f3cca4e..cb9f15e 100644
+--- a/interface/main/main_navigation.php
++++ b/interface/main/main_navigation.php
+@@ -144,7 +144,7 @@ include_once("../../library/acl.inc");
+ </td>
+ 
+ <td align="center" nowrap>
+-&nbsp;<a href="http://www.oemr.org/wiki/OpenEMR_4.1_Users_Guide" target="_blank" class="menu"> 
++&nbsp;<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.1_Users_Guide" target="_blank" class="menu"> 
+ <?php xl('Manual','e'); ?></a>&nbsp;&nbsp;
+ </td>
+ 
+diff --git a/interface/main/main_title.php b/interface/main/main_title.php
+index 6c68d17..cd20bb8 100644
+--- a/interface/main/main_title.php
++++ b/interface/main/main_title.php
+@@ -104,7 +104,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
+ 	<table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
+ 		<td align="right" class="text" style="vertical-align:text-bottom;"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
+ 		&nbsp;|&nbsp;
+-		<a href="http://www.oemr.org/wiki/OpenEMR_4.1_Users_Guide" target="_blank" id="help_link" >
++		<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.1_Users_Guide" target="_blank" id="help_link" >
+ 			<?php xl('Manual','e'); ?></a>&nbsp;</td>
+ 		<td align="right" style="vertical-align:top;"><a href="../logout.php?auth=logout" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
+ 			<span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
+diff --git a/library/globals.inc.php b/library/globals.inc.php
+index 6b381a8..05f18ba 100644
+--- a/library/globals.inc.php
++++ b/library/globals.inc.php
+@@ -196,7 +196,7 @@ $GLOBALS_METADATA = array(
+     'online_support_link' => array(
+       xl('Online Support Link'),
+       'text',                           // data type
+-      'http://sourceforge.net/projects/openemr/support',
++      'http://open-emr.org/',
+       xl('URL for OpenEMR support.')
+     ),
+       
+diff --git a/setup.php b/setup.php
+index 2d4725a..44a1d45 100644
+--- a/setup.php
++++ b/setup.php
+@@ -144,8 +144,7 @@ function cloneClicked() {
+      Please refer to openemr/Documentation. Many forms and other useful scripts can be found at openemr/contrib.</li>
+  <li>To ensure a consistent look and feel through out the application using
+      <a href='http://www.mozilla.org/products/firefox/'>Firefox</a> is recommended.</li>
+- <li>The OpenEMR project home page and documentation can be found at <a href = "http://www.open-emr.org" target="_blank">http://www.open-emr.org</a></li>
+- <li>The OpenEMR forums can be found at <a href = "http://sourceforge.net/projects/openemr" target="_blank">http://sourceforge.net/projects/openemr</a></li>
++ <li>The OpenEMR project home page, documentation, and forums can be found at <a href = "http://www.open-emr.org" target="_blank">http://www.open-emr.org</a></li>
+  <li>We pursue grants to help fund the future development of OpenEMR.  To apply for these grants, we need to estimate how many times this program is installed and how many practices are evaluating or using this software.  It would be awesome if you would email us at <a href="mailto:drbowen@openmedsoftware.org">drbowen@openmedsoftware.org</a> if you have installed this software. The more details about your plans with this software, the better, but even just sending us an email stating you just installed it is very helpful.</li>
+ </ul>
+ <p>
+diff --git a/version.php b/version.php
+index 217801d..905f01b 100644
+--- a/version.php
++++ b/version.php
+@@ -6,7 +6,7 @@
+ $v_major = '4';
+ $v_minor = '1';
+ $v_patch = '0';
+-$v_tag   = '-dev'; // minor revision number, should be empty for production releases
++$v_tag   = ''; // minor revision number, should be empty for production releases
+ 
+ // Database version identifier, this is to be incremented whenever there
+ // is a database change in the course of development.  It is used
+-- 
+1.7.0.4
+
