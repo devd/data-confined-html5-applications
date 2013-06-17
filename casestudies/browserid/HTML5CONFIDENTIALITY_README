@@ -1,0 +1,25 @@
+This is a modified version of BrowserID, based on revision
+1ba11c235dd1424c6f3efb876c58964d98b30423.
+
+To set up this case study, you will need node.js and npm (npm is
+included with newer versions of node.js). follow steps 1 and 2 in
+"Running BrowserID Locally" in README.md. This doesn't seem to work
+even in the original version, so here are some tips:
+
+- If npm can't install bcrypt, you might need g++
+- If jwcrypto complains about missing cryptographic scripts, run
+  node_modules/jwcrypto/libs/load.sh
+- If a "minimal.js" is missing, run
+  node_modules/jwcrypto/libs/package.sh
+- If a "bidbundle.js" is missing, run
+  node_modules/jwcrypto/bundle.sh
+- You might need node-uglify
+- If a "root.cert" has only one part, delete it and run
+  scripts/generate_ephemeral_keys.sh
+
+We did not test email verification. To create some test accounts, run
+the server with a CREATE_TEST_USERS environment variable. The
+following example creates a user with email address
+<1@loadtest.domain> and password "THE PASSWORD"
+
+CREATE_TEST_USERS=1 npm start

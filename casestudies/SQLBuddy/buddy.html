@@ -1,0 +1,108 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script type="text/javascript"> 
+
+var doneInit=false;
+function monitor(obj){
+	console.log("Monitor "+obj.type+" url of "+obj.url)
+	if(obj.id==="mainframe"){
+		if(!doneInit){
+			switch(obj.type){
+				case "STYLESHEET": return check_style_whitelist(obj.url);
+				case "SCRIPT": return check_script_whitelist(obj.url);
+				case "IMAGE": doneInit==true; return check_img_whitelist(obj.url);
+				case "postMessage": return check_postMessage_whitelist(obj.url);
+			}		
+		}else{
+			switch(obj.type){
+				case "IMAGE": doneInit==true; return check_img_whitelist(obj.url);
+				case "SUBDOCUMENT": return check_subdoc_whitelist(obj.url);
+				case "postMessage": return check_postMessage_whitelist(obj.url);			
+			}	
+		}
+	}
+	return false;
+}
+
+var script_urls = new Array(
+	"http://localhost/sqlbuddy/shim.js",
+	"http://localhost/sqlbuddy/js/mootools-1.2-core.js?ver=1_3_3",
+	"http://localhost/sqlbuddy/js/helpers.js?ver=1_3_3",
+	"http://localhost/sqlbuddy/js/core.js?ver=1_3_3",
+	"http://localhost/sqlbuddy/js/movement.js?ver=1_3_3"
+);
+var style_urls = new Array(
+	"http://localhost/sqlbuddy/css/common.css?ver=1_3_3",
+	"http://localhost/sqlbuddy/css/navigation.css?ver=1_3_3",
+	"http://localhost/sqlbuddy/css/print.css?ver=1_3_3",
+	"http://localhost/sqlbuddy/themes/bittersweet/css/main.css?ver=1_3_3"
+);
+
+function check_script_whitelist(url){
+	if(script_urls.indexOf(url)>=0) {
+		return true;
+	}
+	return false;
+}
+
+function check_style_whitelist(url){
+	if(style_urls.indexOf(url)>=0) {
+		return true;
+	}
+	return false;
+}
+
+function check_img_whitelist(url){
+	switch(url){
+	case "http://localhost/sqlbuddy/images/logo.png": return true;
+	case "http://localhost/sqlbuddy/images/closeHover.png": return true;
+	case "http://localhost/sqlbuddy/images/loading.gif": return true;
+	case "http://localhost/sqlbuddy/images/openArrow.png": return true;
+	case "http://localhost/sqlbuddy/images/goto.png": return true;
+	case "http://localhost/sqlbuddy/images/schemaHeader.png": return true;
+	case "http://localhost/sqlbuddy/images/info.png": return true;
+	case "http://localhost/sqlbuddy/images/infoHover.png": return true;
+	case "http://localhost/sqlbuddy/images/window-button.png": return true;
+	case "http://localhost/sqlbuddy/images/window-center.png": return true;
+	case "http://localhost/sqlbuddy/images/window-close.png": return true;
+	case "http://localhost/sqlbuddy/images/window-header-center.png": return true;
+	case "http://localhost/sqlbuddy/images/window-header-left.png": return true;
+	case "http://localhost/sqlbuddy/images/window-header-right.png": return true;
+	case "http://localhost/sqlbuddy/images/window-resize.png": return true;
+	case "http://localhost/sqlbuddy/images/window-shadow-bottom-left.png": return true;
+	case "http://localhost/sqlbuddy/images/window-shadow-bottom-right.png": return true;
+	case "http://localhost/sqlbuddy/images/window-shadow-bottom.png": return true;
+	case "http://localhost/sqlbuddy/images/window-shadow-left.png": return true;
+	case "http://localhost/sqlbuddy/images/window-shadow-right.png": return true;
+	}	
+	return false;
+}
+
+function check_subdoc_whitelist(url){
+	if(url.indexOf("http://localhost/sqlbuddy/#page=")===0) return true;
+	else if(url==="http://localhost/sqlbuddy/logout.php") return true;
+	return false;
+}
+
+function check_postMessage_whitelist(url){
+	if(url.indexOf("http://localhost/sqlbuddy/")===0 && url.indexOf(".php")>0) {
+		if(url.indexOf("insert.php?")>0){
+			var r = confirm("Do you want to write to the table?")
+			console.log(r)
+			return r;
+		}
+		return true;
+	}
+	return false;
+}
+</script>
+</head>
+<body>
+<style>
+iframe,body,html{ width:100%;margin:0;border:0;padding:0;}
+ </style>
+<script src="master.js" type="text/javascript"></script>
+<script src="buddy.js" type="text/javascript">
+</script>
+</body>

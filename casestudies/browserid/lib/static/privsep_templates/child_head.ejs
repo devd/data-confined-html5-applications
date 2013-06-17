@@ -1,0 +1,7 @@
+<!-- CSP -->
+<script>
+var __ORIGIN = <%- JSON.stringify(origin).replace(/<\//g, '<\\/') %>;
+var __PATH = <%- JSON.stringify(path).replace(/<\//g, '<\\/') %>;
+</script>
+<base href="<%= origin + path %>/" target="_parent">
+<script src="/common/js/shim.js"></script>

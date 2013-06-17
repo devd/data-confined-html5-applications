@@ -1,0 +1,75 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<div id="hAlign" class="display_always">
+    <div id="vAlign">
+        <!-- XXX this form submits to nowhere -->
+        <form id="signUpForm" class="cf authform" novalidate>
+            <h1><%- gettext('Sign In') %></h1>
+
+            <ul class="notifications">
+                <li class="notification" id="unknown_secondary">
+                  <%- gettext('<strong id="unknown_email">Email</strong> is not registered. Would you like to <a class="action" href="/signup">sign up</a> instead?') %>
+                </li>
+
+            </ul>
+
+            <ul class="inputs">
+                <li>
+                    <label for="email"><%- gettext('Email Address') %></label>
+                    <input id="email" autofocus placeholder="<%- gettext('Your Email') %>" type="email" autocapitalize="off" autocorrect="off" tabindex="1" maxlength="254" />
+
+                    <div id="email_format" class="tooltip" for="email">
+                      <%- gettext('This field must be an email address.') %>
+                    </div>
+
+                    <div id="email_required" class="tooltip" for="email">
+                      <%- gettext('The email field is required.') %>
+                    </div>
+                </li>
+              </ul>
+
+              <ul class="inputs password_entry">
+                <li class="password_section">
+                    <a class="forgot right" href="/forgot" tabindex="4"><%- gettext('forgot your password?') %></a>
+                    <label for="password"><%- gettext('Password') %></label>
+                    <input id="password" placeholder="<%- gettext('Your Password') %>" type="password" tabindex="2" maxlength="80">
+
+                    <div id="password_required" class="tooltip" for="password">
+                      <%- gettext('The password field is required.') %>
+                    </div>
+
+                    <div id="cannot_authenticate" class="tooltip" for="password">
+                      <%- gettext('This email address and password do not match.') %>
+                    </div>
+
+                </li>
+            </ul>
+
+            <div class="submit cf forminputs">
+                <button tabindex="5"><%- gettext('Sign In') %></button>
+                <div class="remember cf">
+                    <a class="action" href="/signup"><%- gettext('New to Persona? Sign up today.') %></a>
+                </div>
+            </div>
+
+            <ul class="notifications">
+                <li class="notification" id="verify_primary">
+                  <p>
+                    <%- gettext('To verify that you own <strong id="primary_email">address</strong>, you must sign in with your provider.  A new window will be opened.') %>
+                  </p>
+
+                  <p>
+                    <button id="authWithPrimary"><%- gettext('Verify') %></button>
+                  </p>
+                </li>
+            </ul>
+        </form>
+    </div>
+</div>
+
+<noscript>
+  <%- gettext('We\'re sorry, Persona requires that Javascript is enabled.') %>
+</noscript>
+

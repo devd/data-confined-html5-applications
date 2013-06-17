@@ -1,0 +1,51 @@
+{
+    "name": "browserid",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "JSONSelect": "0.4.0",
+        "bcrypt": "0.4.1",
+        "compute-cluster": "0.0.6",
+        "connect": "1.7.2",
+        "convict": "0.0.6",
+        "cjson": "0.0.6",
+        "client-sessions": "0.0.6",
+        "connect-cachify": "0.0.10",
+        "connect-cookie-session": "0.0.2",
+        "connect-logger-statsd": "0.0.1",
+        "ejs": "0.4.3",
+        "etagify": "0.0.2",
+        "express": "2.5.0",
+        "gobbledygook": "0.0.3", 
+        "mustache": "0.3.1-dev",
+        "jwcrypto": "0.3.2",
+        "mysql": "0.9.5",
+        "node-statsd": "https://github.com/downloads/lloyd/node-statsd/0509f85.tgz",
+        "nodemailer": "0.1.24",
+        "mkdirp": "0.3.0",
+        "optimist": "0.2.8",
+        "postprocess": "0.2.4",
+        "semver": "1.0.12",
+        "temp": "0.4.0",
+        "uglify-js": "1.0.6",
+        "uglifycss": "0.0.5",
+        "underscore": "1.3.1",
+        "urlparse": "0.0.1",
+        "validator": "0.4.9",
+        "winston": "0.6.2"
+    },
+    "devDependencies": {
+        "vows": "0.5.13",
+        "awsbox": "0.2.12",
+        "irc": "0.3.3",
+        "jshint": "0.7.1"
+    },
+    "scripts": {
+        "postinstall": "./scripts/generate_ephemeral_keys.sh",
+        "test": "./scripts/test",
+        "start": "./scripts/run_locally.js"
+    },
+    "engines": {
+        "node": ">= 0.6.2"
+    }
+}

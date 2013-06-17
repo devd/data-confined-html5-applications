@@ -1,0 +1,28 @@
+<html>
+<body>
+<style>
+iframe,body,html{ width:100%;margin:0;border:0;padding:0;}
+ </style>
+<script src="master.js" type="text/javascript"></script>
+<script>
+
+setupSandbox({url:'login.php',base:'http://localhost/sqlbuddy/'});
+
+/*
+var req = new XMLHttpRequest();
+req.open("GET",'http://localhost/sqlbuddy/index.php',false);
+req.send(null);
+
+
+
+content = "<html><head><base href='http://localhost/sqlbuddy/'><script src='/shim.js' type='text/javascript' ><"+"/script>"+req.responseText;
+content=encodeURIComponent(content);
+var fr = document.createElement("iframe");
+fr.setAttribute("frameBorder","0");
+fr.setAttribute("height","100%");
+fr.setAttribute("id","mainframe");
+fr.src="data:text/html,"+content;
+document.body.appendChild(fr);
+*/
+</script>
+</body>

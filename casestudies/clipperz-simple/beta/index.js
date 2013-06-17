@@ -1,0 +1,1 @@
+setupSandbox({url: 'i.html', base: 'http://localhost/php/beta/'});
