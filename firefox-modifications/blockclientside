@@ -1,0 +1,174 @@
+# HG changeset patch
+# Parent baf6d1d477bc4664bbb1f4cf29bc59d14061f0cf
+# User Devdatta Akhawe [dev.akhawe@gmail.com]
+patch to block client-side channels
+
+diff --git a/js/xpconnect/wrappers/AccessCheck.cpp b/js/xpconnect/wrappers/AccessCheck.cpp
+--- a/js/xpconnect/wrappers/AccessCheck.cpp
++++ b/js/xpconnect/wrappers/AccessCheck.cpp
+@@ -111,9 +111,9 @@ AccessCheck::getPrincipal(JSCompartment 
+ #define NAME(ch, str, cases)                                                  \
+     case ch: if (!strcmp(name, str)) switch (propChars[0]) { cases }; break;
+ #define PROP(ch, actions) case ch: { actions }; break;
+-#define RW(str) if (JS_FlatStringEqualsAscii(prop, str)) return true;
+-#define R(str) if (!set && JS_FlatStringEqualsAscii(prop, str)) return true;
+-#define W(str) if (set && JS_FlatStringEqualsAscii(prop, str)) return true;
++#define RW(str) if (JS_FlatStringEqualsAscii(prop, str)){ printf("\n\nallowing RW %s",str); return true;}
++#define R(str) if (!set && JS_FlatStringEqualsAscii(prop, str)){ printf("\n\nallowing R %s",str); return true;}
++#define W(str) if (set && JS_FlatStringEqualsAscii(prop, str)){ printf("\n\nallowing W %s",str); return true;}
+ 
+ // Hardcoded policy for cross origin property access. This was culled from the
+ // preferences file (all.js). We don't want users to overwrite highly sensitive
+@@ -216,6 +216,152 @@ AccessCheck::isCrossOriginAccessPermitte
+     else
+         name = clasp->name;
+ 
++    /******************************
++     * DCFSandbox support block client-side channels
++     * ****************************/
++
++    {
++        //printf("\n\n\n\n\n DEBUG \n\n\n\n");
++        //subject is the principal making the call
++        //object is the principal whose property is being accessed
++
++        JSObject *scope = JS_GetScriptedGlobal(cx);
++        JSStackFrame *fp;
++        nsIScriptSecurityManager *ssm = XPCWrapper::GetSecurityManager();
++        nsIPrincipal *subject = ssm->GetCxSubjectPrincipal(cx);
++        //ssm->GetObjectPrincipal();
++        //nsIPrincipal *object = ssm->GetCxSubjectPrincipalAndFrame(cx, &fp);
++        //nsIPrincipal *subject = getPrincipal(scope);
++        //nsIPrincipal *object  = getPrincipal(JS_GetGlobalForObject(cx, obj));
++        nsIPrincipal *object;
++        ssm->GetObjectPrincipal(cx,obj,&object);
++        JSFlatString *prop = JSID_TO_FLAT_STRING(id);
++        bool subjectConfidential=false;
++        bool objectConfidential=false;
++
++        if(subject){
++            //printf("\n\n\n\n\n 240 DEBUG \n\n\n\n");
++            nsCOMPtr<nsIURI> uri;
++            subject->GetURI(getter_AddRefs(uri));
++            bool isDataUri=false;
++            bool isBlobUri=false;
++            bool isNullUri=false;
++            nsCAutoString scheme;
++            nsCAutoString spec;
++            if(uri){
++                uri->SchemeIs("data",&isDataUri);
++                uri->SchemeIs("blob",&isBlobUri);
++                uri->SchemeIs("moz-nullprincipal",&isNullUri);
++                uri->GetScheme(scheme);
++                uri->GetAsciiSpec(spec);
++                //printf("\n\n\n\n\n 247 DEBUG URL:%s Scheme:%s isDataURI:%s isBlobURI:%s\n\n\n\n",spec.get(),scheme.get(),isDataUri?"true":"false",isBlobUri?"true":"false");
++                if(isNullUri){
++             //       printf("\n\n\n\n\n 251 DEBUG \n\n\n\n");
++                    subjectConfidential=true;
++                }
++            }
++            /*
++            nsCOMPtr<nsPIDOMWindow> win = do_QueryInterface(JS_GetScriptedGlobal(cx));
++            if (win) {
++                nsIUR
++                nsCOMPtr<nsIDocument> doc =
++                    do_QueryInterface(win->GetExtantDocument());
++
++                PRUint32 mSandboxFlags;
++                doc->GetSandboxFlags(&mSandboxFlags);
++                printf("\n\n\n SandboxFlags is : %d \n\n\n\n",mSandboxFlags);
++
++
++            }*/
++        }
++
++
++
++        if(object){
++            //printf("\n\n\n\n\n object  DEBUG \n\n\n\n");
++            nsCOMPtr<nsIURI> uri;
++            object->GetURI(getter_AddRefs(uri));
++            bool isDataUri=false;
++            bool isBlobUri=false;
++            bool isNullUri=false;
++            nsCAutoString scheme;
++            nsCAutoString spec;
++            if(uri){
++                uri->SchemeIs("data",&isDataUri);
++                uri->SchemeIs("blob",&isBlobUri);
++                uri->SchemeIs("moz-nullprincipal",&isNullUri);
++                uri->GetScheme(scheme);
++                uri->GetAsciiSpec(spec);
++                //printf("\n\n\n\n\n 247 DEBUG URL:%s Scheme:%s isDataURI:%s isBlobURI:%s IsNullUri:%s\n\n\n\n",spec.get(),scheme.get(),isDataUri?"true":"false",isBlobUri?"true":"false",isNullUri?"true":"false");
++                if(isNullUri){
++                    //printf("\n\n\n\n\n 251 DEBUG \n\n\n\n");
++                    objectConfidential=true;
++                }
++            }
++            /*
++            nsCOMPtr<nsPIDOMWindow> win = do_QueryInterface(JS_GetScriptedGlobal(cx));
++            if (win) {
++                nsIUR
++                nsCOMPtr<nsIDocument> doc =
++                    do_QueryInterface(win->GetExtantDocument());
++
++                PRUint32 mSandboxFlags;
++                doc->GetSandboxFlags(&mSandboxFlags);
++                printf("\n\n\n SandboxFlags is : %d \n\n\n\n",mSandboxFlags);
++
++
++            }*/
++        }
++
++
++        //printf("\n\n ObjectConfidential: %s, SubjectConfidential: %s\n\n\n",objectConfidential?"true":"false",
++                          subjectConfidential?"true":"false");
++
++
++        //if the principal making the call is confidential, then sets are just not allowed
++        //neither are function calls
++        if(subjectConfidential && act == Wrapper::SET)
++            return false;
++        //printf("\n\nDEBUG 325");
++
++        //a confidential person can only call postMessage (getting anything is allowed)
++        if(subjectConfidential && act == Wrapper::CALL){
++            if(!
++                    ( strcmp(name,"window") && JS_FlatStringEqualsAscii(prop,"postMessage"))
++              ){
++                return false;
++            }
++        }
++        //printf("\n\nDEBUG 335");
++
++        //if the object you are accessing is in a confidential frame, then you can only get a few
++        //things: window handles and postMessage API
++        //you still get to set whatever you want, you just can't call things or access things
++        if( (objectConfidential && act!=Wrapper::SET) ){
++            if(!
++                    ( strcmp(name,"window") && 
++                      (   JS_FlatStringEqualsAscii(prop,"postMessage") 
++                          || JS_FlatStringEqualsAscii(prop,"parent") 
++                      )
++                    )
++              ){
++                return false;
++            }
++
++        }
++        //printf("\n\nDEBUG 357 Action:%s\n\n", ((act == Wrapper::SET) ? "set":((act==Wrapper::GET) ? "get":"call")));
++
++    }
++
++
++
++    //Ok done
++
++
++
++
++
++
+     if (JSID_IS_STRING(id)) {
+         if (IsPermitted(name, JSID_TO_FLAT_STRING(id), act == Wrapper::SET))
+             return true;

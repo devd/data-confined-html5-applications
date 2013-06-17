@@ -1,0 +1,50 @@
+# HG changeset patch
+# Parent e316a2f8381461cb541d03233c49e774fa283359
+# User Devdatta Akhawe [dev.akhawe@gmail.com]
+add support for a dcfsandbox attribute
+
+diff --git a/content/base/src/nsGkAtomList.h b/content/base/src/nsGkAtomList.h
+--- a/content/base/src/nsGkAtomList.h
++++ b/content/base/src/nsGkAtomList.h
+@@ -851,6 +851,7 @@ GK_ATOM(rules, "rules")
+ GK_ATOM(s, "s")
+ GK_ATOM(samp, "samp")
+ GK_ATOM(sandbox, "sandbox")
++GK_ATOM(dcfsandbox, "dcfsandbox")
+ GK_ATOM(sbattr, "sbattr")
+ GK_ATOM(scale, "scale")
+ GK_ATOM(scan, "scan")
+diff --git a/content/html/content/src/nsHTMLIFrameElement.cpp b/content/html/content/src/nsHTMLIFrameElement.cpp
+--- a/content/html/content/src/nsHTMLIFrameElement.cpp
++++ b/content/html/content/src/nsHTMLIFrameElement.cpp
+@@ -51,6 +51,7 @@ NS_IMPL_URI_ATTR(nsHTMLIFrameElement, Sr
+ NS_IMPL_STRING_ATTR(nsHTMLIFrameElement, Width, width)
+ NS_IMPL_BOOL_ATTR(nsHTMLIFrameElement, MozAllowFullScreen, mozallowfullscreen)
+ NS_IMPL_STRING_ATTR(nsHTMLIFrameElement, Sandbox, sandbox)
++//NS_IMPL_STRING_ATTR(nsHTMLIFrameElement, Dcfsandbox, dcfsandbox)
+ 
+ void
+ nsHTMLIFrameElement::GetItemValueText(nsAString& aValue)
+@@ -205,7 +206,7 @@ nsHTMLIFrameElement::AfterSetAttr(PRInt3
+                                     const nsAttrValue* aValue,
+                                     bool aNotify)
+ {
+-  if (aName == nsGkAtoms::sandbox && aNameSpaceID == kNameSpaceID_None) {
++  if ((aName == nsGkAtoms::sandbox || aName == nsGkAtoms::dcfsandbox) && aNameSpaceID == kNameSpaceID_None) {
+     // Parse the new value of the sandbox attribute, and if we have a docshell
+     // set its sandbox flags appropriately.
+     if (mFrameLoader) {
+diff --git a/content/html/content/src/nsHTMLIFrameElement.h b/content/html/content/src/nsHTMLIFrameElement.h
+--- a/content/html/content/src/nsHTMLIFrameElement.h
++++ b/content/html/content/src/nsHTMLIFrameElement.h
+@@ -65,6 +65,10 @@ public:
+     if (GetAttr(kNameSpaceID_None, nsGkAtoms::sandbox, sandboxAttr)) {
+       return nsContentUtils::ParseSandboxAttributeToFlags(sandboxAttr);
+     }
++    
++    if (GetAttr(kNameSpaceID_None, nsGkAtoms::dcfsandbox, sandboxAttr)) {
++      return nsContentUtils::ParseSandboxAttributeToFlags(sandboxAttr);
++    }
+ 
+     // No sandbox attribute, no sandbox flags.
+     return 0;
